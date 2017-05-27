@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+    php:
+        container_name: php
+        image: nomad145/linode-alpha-php
+        build: .docker/php
+        environment:
+            XDEBUG_CONFIG: remote_host=10.105.38.105
+
+    nginx:
+      container_name: nginx
+      build: .docker/nginx
+      links:
+          - php
+      environment:
+        VIRTUAL_HOST: linode.localhost
+      ports:
+          - "80:80"

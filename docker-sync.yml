@@ -1,0 +1,7 @@
+version: "2"
+syncs:
+    linode-sync:
+        src: './'
+        sync_strategy: 'native_osx'
+        sync_excludes: ['.project', '.git', '.docker', '.platform', 'var/cache']
+        sync_excludes_type: 'Name'
