@@ -4,12 +4,8 @@
 ```
 <?php
 
-use LinodeApi\Client as LinodeClient;
 use LinodeApi\Auth\AccessToken;
-use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use LinodeApi\Middleware\AccessTokenMiddleware;
 use LinodeApi\Middleware\JsonContentTypeMiddleware;
 use LinodeApi\Factory\GuzzleFactory;
