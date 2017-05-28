@@ -15,11 +15,14 @@ class Client
     /** @var AccessToken */
     protected $accessToken;
 
-    /** @var string */
-    protected $baseEndpoint = 'https://login.alpha.linode.com';
-
     /** @var ClientInterface */
     protected $httpClient;
+
+    public function __construct(ClientInterface $httpClient, AccessToken $accessToken)
+    {
+        $this->httpClient = $httpClient;
+        $this->accessToken = $accessToken;
+    }
 
     /**
      * Getter for accessToken
@@ -40,29 +43,6 @@ class Client
     public function setAccessToken(AccessToken $accessToken) : Client
     {
         $this->accessToken = $accessToken;
-
-        return $this;
-    }
-
-    /**
-     * Getter for baseEndpoint
-     *
-     * @return string
-     */
-    public function getBaseEndpoint() : string
-    {
-        return $this->baseEndpoint;
-    }
-
-    /**
-     * Setter for baseEndpoint
-     *
-     * @param string $baseEndpoint
-     * @return Client
-     */
-    public function setBaseEndpoint(string $baseEndpoint) : Client
-    {
-        $this->baseEndpoint = $baseEndpoint;
 
         return $this;
     }

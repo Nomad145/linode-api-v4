@@ -13,22 +13,16 @@ use GuzzleHttp\Psr7\Response;
  */
 class ClientTest extends \PHPUnit\Framework\TestCase
 {
-    public function testClient()
+    public function testCall()
     {
-        $subject = new Client();
-
         $accessToken = new AccessToken('token');
         $httpClient = $this->createMock(ClientInterface::class);
         $httpClient
             ->method('request')
             ->willReturn(new Response());
 
-        $subject->setAccessToken($accessToken);
-        $subject->setHttpClient($httpClient);
-        $subject->setBaseEndpoint('https://test.endpoint.com');
+        $subject = new Client($httpClient, $accessToken);
 
-        $this->assertSame($accessToken, $subject->getAccessToken());
-        $this->assertSame('https://test.endpoint.com', $subject->getBaseEndpoint());
         $this->assertInstanceOf(Response::class, $subject->call('GET', '/test'));
     }
 }
