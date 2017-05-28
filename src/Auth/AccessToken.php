@@ -1,6 +1,6 @@
 <?php
 
-namespace Nomad145\LinodeAlphaAPI\Auth;
+namespace LinodeApi\Auth;
 
 /**
  * Class AccessToken

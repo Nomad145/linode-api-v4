@@ -1,13 +1,13 @@
 {
-    "name": "nomad145/linode-alpha-api",
-    "description": "A PHP library for Linode v4 Alpha API.",
+    "name": "nomad145/linode-api-v4",
+    "description": "A PHP library for Linode v4 API.",
     "type": "library",
     "autoload": {
-        "psr-4": {"Nomad145\\LinodeAlphaAPI\\": "src/"}
+        "psr-4": {"LinodeApi\\": "src/"}
     },
     "autoload-dev": {
         "psr-4": {
-            "Nomad145\\LinodeAlphaAPI\\Test\\": "tests/"
+            "LinodeApi\\Test\\": "tests/"
         }
     },
     "authors": [

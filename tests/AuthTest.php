@@ -1,8 +1,8 @@
 <?php
 
-namespace Nomad145\LinodeAlphaApi\Test;
+namespace LinodeApi\Test;
 
-use Nomad145\LinodeAlphaAPI\Auth\AccessToken;
+use LinodeApi\Auth\AccessToken;
 
 /**
  * Class AccessTokenTest

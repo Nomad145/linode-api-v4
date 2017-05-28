@@ -1,8 +1,8 @@
 <?php
 
-namespace Nomad145\LinodeAlphaAPI;
+namespace LinodeApi;
 
-use Nomad145\LinodeAlphaAPI\Auth\AccessToken;
+use LinodeApi\Auth\AccessToken;
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 
