@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/Nomad145/linode-api-v4.svg?branch=master)](https://travis-ci.org/Nomad145/linode-api-v4)
+[![codecov](https://codecov.io/gh/Nomad145/linode-api-v4/branch/master/graph/badge.svg)](https://codecov.io/gh/Nomad145/linode-api-v4)
+
 ```
 <?php
 
