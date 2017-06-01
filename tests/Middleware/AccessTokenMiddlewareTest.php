@@ -16,12 +16,11 @@ class AccessTokenMiddlewareTest extends MiddlewareTestCase
     public function testMiddleware()
     {
         $subject = new AccessTokenMiddleware(new AccessToken('test_token'));
-        $request = new Request('GET', 'http://test.endpoint.com');
 
         $callable = $subject(self::handler());
         $this->assertInternalType('callable', $callable);
 
-        $request = $callable($request, []);
+        $request = $callable($this->request, []);
         $this->assertInstanceOf(Request::class, $request);
         $this->assertSame(['token test_token'], $request->getHeader('Authorization'));
     }

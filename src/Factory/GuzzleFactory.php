@@ -11,21 +11,14 @@ use GuzzleHttp\Client;
  */
 class GuzzleFactory
 {
-    protected $baseEndpoint;
-
-    public function __construct(string $baseEndpoint)
-    {
-        $this->endpoint = $baseEndpoint;
-    }
-
-    public function create(array $middleware = [])
+    public function getClient(string $baseEndpoint, array $middleware = [])
     {
         $stack = HandlerStack::create();
         array_walk($middleware, [$stack, 'push']);
 
         return new Client([
             'handler' => $stack,
-            'base_uri' => $this->endpoint,
+            'base_uri' => $baseEndpoint,
         ]);
     }
 }

@@ -14,12 +14,12 @@ class GuzzleFactoryTest extends \PHPUnit\Framework\TestCase
 {
     public function testGuzzleFactory()
     {
-        $subject = new GuzzleFactory('https://test.endpoint.com');
+        $subject = new GuzzleFactory();
         $middleware = function () {
             return;
         };
 
-        $client = $subject->create([
+        $client = $subject->getClient('https://test.endpoint.com', [
             'TestMiddleware' => $middleware
         ]);
 
