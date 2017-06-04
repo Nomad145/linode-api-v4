@@ -7,10 +7,10 @@ use LinodeApi\Request\RequestBuilder;
 use LinodeApi\Model\AbstractModel;
 
 /**
- * Class Processor
+ * Class Persistor
  * @author Michael Phillips <michaeljoelphillips@gmail.com>
  */
-class Processor
+class Persistor
 {
     public function __construct(ClientInterface $client, RequestBuilder $builder)
     {
@@ -43,6 +43,13 @@ class Processor
 
     public function update(AbstractModel $model)
     {
+        $request = $this->builder
+            ->setMethod('PUT')
+            ->setUri($model->getEndpoint())
+            ->setBody($model->toArray())
+            ->build();
+
+        return $this->client->send($request);
     }
 
     public function delete(AbstractModel $model)
