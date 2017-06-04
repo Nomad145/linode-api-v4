@@ -4,7 +4,7 @@ namespace LinodeApi\Model;
 
 use GuzzleHttp\ClientInterface;
 use LinodeApi\Request\RequestBuilder;
-use LinodeApi\Request\Processor;
+use LinodeApi\Request\Persistor;
 
 /**
  * Class AbstractModel
@@ -28,30 +28,28 @@ class AbstractModel
         return $this->endpoint;
     }
 
-    protected function createProcessor()
+    protected function createPersistor()
     {
-        return new Processor(static::$client, new RequestBuilder());
+        return new Persistor(static::$client, new RequestBuilder());
     }
 
     public function save()
     {
-        $processor = $this->createProcessor();
+        $persistor = $this->createPersistor();
 
-        return $this->isDirty ? $processor->update($this) : $processor->create($this);
+        return $this->isDirty ? $persistor->update($this) : $persistor->create($this);
     }
 
     public function delete()
     {
-        $processor = $this->createProcessor();
-        $processor->delete($this);
-
-        return $this;
+        return $this->createPersistor()->delete($this);
     }
 
     public static function find($id)
     {
-        $processor = new Processor(static::$client, new RequestBuilder());
-        return $processor->find((new static), $id);
+        $model = (new static);
+
+        return $model->createPersistor()->find($model, $id);
     }
 
     public function toArray()
