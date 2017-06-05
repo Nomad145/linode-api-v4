@@ -5,6 +5,7 @@ namespace LinodeApi\Model;
 use GuzzleHttp\ClientInterface;
 use LinodeApi\Request\RequestBuilder;
 use LinodeApi\Request\Persistor;
+use LinodeApi\Exception\ModelNotInitializedException;
 
 /**
  * Class AbstractModel
@@ -30,6 +31,10 @@ class AbstractModel
 
     protected function createPersistor()
     {
+        if (!static::$client) {
+            throw new ModelNotInitializedException('The HTTP client was not initialized.');
+        }
+
         return new Persistor(static::$client, new RequestBuilder());
     }
 
