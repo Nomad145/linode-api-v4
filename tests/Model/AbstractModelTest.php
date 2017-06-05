@@ -59,4 +59,9 @@ class AbstractModelTest extends \PHPUnit\Framework\TestCase
         $this->expectException(ModelNotInitializedException::class);
         $persistor = $function->invoke($this->subject);
     }
+
+    public function testToArray()
+    {
+        $this->assertInternalType('array', $this->subject->toArray());
+    }
 }

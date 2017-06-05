@@ -52,9 +52,7 @@ class AbstractModel
 
     public static function find($id)
     {
-        $model = (new static);
-
-        return $model->createPersistor()->find($model, $id);
+        return (new static)->createPersistor()->find($model, $id);
     }
 
     public function toArray()
