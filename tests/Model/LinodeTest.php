@@ -21,4 +21,10 @@ class LinodeTest extends \PHPUnit\Framework\TestCase
 
         $this->markTestIncomplete('To be continued...');
     }
+
+    public function testGetEndpoint()
+    {
+        $subject = new Linode();
+        $this->assertSame('linode/instances', $subject->getEndpoint());
+    }
 }
