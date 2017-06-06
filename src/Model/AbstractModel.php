@@ -81,7 +81,7 @@ class AbstractModel
         }
 
         /*
-         * @TODO: Should RequestBuilder contain the client instance?
+         * @TODO: Executing the request should be delegated to another class.
          *
          * $builder
          *     ->setUri()
@@ -89,11 +89,6 @@ class AbstractModel
          *     ->execute();
          */
         return new Persistor(static::$client, new RequestBuilder(), new Hydrator());
-    }
-
-    protected function newCollection(array $data)
-    {
-        return new Collection($data);
     }
 
     public function save()
