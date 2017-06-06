@@ -6,6 +6,7 @@ use GuzzleHttp\ClientInterface;
 use LinodeApi\Request\RequestBuilder;
 use LinodeApi\Request\Persistor;
 use LinodeApi\Exception\ModelNotInitializedException;
+use LinodeApi\Hydrator;
 
 /**
  * Class AbstractModel
@@ -13,15 +14,59 @@ use LinodeApi\Exception\ModelNotInitializedException;
  */
 class AbstractModel
 {
+    /** @var ClientInterface */
     protected static $client;
 
+    /** @var boolean */
     protected $isDirty = false;
 
+    /** @var boolean */
+    protected $synced = false;
+
+    /** @var array */
     protected $attributes = [];
 
+    /**
+     * setClient
+     *
+     * Sets the HTTP Guzzle Client on the base class.
+     *
+     * @param ClientInterface
+     */
     public static function setClient(ClientInterface $client)
     {
         static::$client = $client;
+    }
+
+    public function setAttributes(array $attributes)
+    {
+        $this->attributes = $attributes;
+        $this->isDirty = false;
+
+        return $this;
+    }
+
+    public function setAttribute($attribute, $value)
+    {
+        $this->attributes[$attribute] = $value;
+        $this->setDirty();
+
+        return $this;
+    }
+
+    protected function setDirty()
+    {
+        if ($this->synced) {
+            $this->dirty = true;
+        }
+
+        return $this;
+    }
+
+    public function getAttribute($attribute)
+    {
+        // @TODO: Error handling.
+        return $this->attributes[$attribute];
     }
 
     public function getEndpoint()
@@ -35,7 +80,20 @@ class AbstractModel
             throw new ModelNotInitializedException('The HTTP client was not initialized.');
         }
 
-        return new Persistor(static::$client, new RequestBuilder());
+        /*
+         * @TODO: Should RequestBuilder contain the client instance?
+         *
+         * $builder
+         *     ->setUri()
+         *     ->setBody()
+         *     ->execute();
+         */
+        return new Persistor(static::$client, new RequestBuilder(), new Hydrator());
+    }
+
+    protected function newCollection(array $data)
+    {
+        return new Collection($data);
     }
 
     public function save()
@@ -47,16 +105,42 @@ class AbstractModel
 
     public function delete()
     {
-        return $this->createPersistor()->delete($this);
+        $this->createPersistor()->delete($this);
     }
 
     public static function find($id)
     {
-        return (new static)->createPersistor()->find($model, $id);
+        $model = (new static);
+
+        return $model->createPersistor()->findOne($model, $id);
+    }
+
+    public static function all()
+    {
+        $model = new static;
+
+        return $model->createPersistor()->findMany($model);
+    }
+
+    public function newInstance()
+    {
+        return new static;
     }
 
     public function toArray()
     {
         return $this->attributes;
+    }
+
+    public function __set($attribute, $value)
+    {
+        $this->setAttribute($attribute, $value);
+
+        return $this;
+    }
+
+    public function __get($attribute)
+    {
+        return $this->getAttribute($attribute);
     }
 }
