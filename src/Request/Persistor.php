@@ -10,6 +10,10 @@ use LinodeApi\Hydrator;
 
 /**
  * Class Persistor
+ *
+ * @TODO: These methods should always receive a clone of the model for
+ * immutibility.
+ *
  * @author Michael Phillips <michaeljoelphillips@gmail.com>
  */
 class Persistor
@@ -46,6 +50,12 @@ class Persistor
         return $model->setAttributes($response);
     }
 
+    /**
+     * findMany
+     *
+     * @param AbstractModel $model
+     * @return ArrayCollection|AbstractModel
+     */
     public function findMany(AbstractModel $model)
     {
         $request = $this->builder

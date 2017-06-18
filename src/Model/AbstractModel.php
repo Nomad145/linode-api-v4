@@ -12,7 +12,7 @@ use LinodeApi\Hydrator;
  * Class AbstractModel
  * @author Michael Phillips <michaeljoelphillips@gmail.com>
  */
-class AbstractModel
+abstract class AbstractModel
 {
     /** @var ClientInterface */
     protected static $client;
@@ -74,6 +74,30 @@ class AbstractModel
         return $this->endpoint;
     }
 
+    /**
+     * getBaseUrl
+     *
+     * Returns the base URL for the model.
+     *
+     * @return string
+     */
+    public abstract function getBaseUrl();
+
+    /**
+     * getBaseUrlWithCommand
+     *
+     * Returns the base URL for the model with a command.
+     *
+     * @param string $command
+     * @return string
+     */
+    public abstract function getBaseUrlWithCommand(string $command);
+
+    /**
+     * createPersistor
+     *
+     * @return Persistor
+     */
     protected function createPersistor()
     {
         if (!static::$client) {

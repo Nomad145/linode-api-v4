@@ -15,9 +15,17 @@ class AbstractModelTest extends \PHPUnit\Framework\TestCase
 {
     public function setUp()
     {
-        $this->subject = $this
-            ->getMockBuilder(AbstractModel::class)
-            ->getMockForAbstractClass();
+        $this->subject = $this->getMockForAbstractClass(AbstractModel::class);
+
+        $this->subject
+            ->expects($this->any())
+            ->method('getBaseUrl')
+            ->willReturn('base/url');
+
+        $this->subject
+            ->expects($this->any())
+            ->method('getBaseUrlWithCommand')
+            ->willReturn('base/url/1');
     }
 
     public function testSetClient()
