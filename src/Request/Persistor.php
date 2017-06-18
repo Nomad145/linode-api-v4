@@ -60,7 +60,7 @@ class Persistor
     {
         $request = $this->builder
             ->setMethod('GET')
-            ->setUri(sprintf('%s/%s', $model->getEndpoint(), $id))
+            ->setUri(sprintf('%s', $model->getEndpoint()))
             ->build();
 
         $response = json_decode($this->client->send($request)->getBody(), true);
