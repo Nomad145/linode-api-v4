@@ -6,7 +6,7 @@ services:
         image: nomad145/linode-alpha-php
         build: .docker/php
         environment:
-            XDEBUG_CONFIG: remote_host=10.105.38.105
+            XDEBUG_CONFIG: remote_host=192.168.1.107
 
     nginx:
       container_name: nginx
