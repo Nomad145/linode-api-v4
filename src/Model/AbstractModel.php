@@ -14,13 +14,24 @@ use LinodeApi\Hydrator;
  */
 abstract class AbstractModel
 {
-    /** @var ClientInterface */
+    /**
+     * @var ClientInterface
+     *
+     * The HTTP Client communicating with the API.
+     */
     protected static $client;
 
-    /** @var boolean */
-    protected $isDirty = false;
+    /**
+     * @var boolean
+     *
+     * The state of the model relating to source data; true if data has
+     * been modified.
+     */
+    protected $dirty = false;
 
-    /** @var boolean */
+    /**
+     * @var boolean
+     */
     protected $synced = false;
 
     /** @var array */
@@ -29,7 +40,7 @@ abstract class AbstractModel
     /**
      * setClient
      *
-     * Sets the HTTP Guzzle Client on the base class.
+     * Set the HTTP Guzzle Client.
      *
      * @param ClientInterface
      */
@@ -38,24 +49,37 @@ abstract class AbstractModel
         static::$client = $client;
     }
 
-    public function setAttributes(array $attributes)
+    /**
+     * setAttributes
+     *
+     * How do we enforce that the API is the only thing that hydrates the
+     * model?  In what scenarios would a developer need this method?
+     *  - Hydrating the model from a cached response.
+     *
+     * @param array $attributes
+     * @param bool $sync Flag for setting the model to 'synced'.
+     */
+    public function setAttributes(array $attributes, bool $sync = true)
     {
         $this->attributes = $attributes;
-        $this->isDirty = false;
+
+        if ($sync) {
+            $this->sync();
+        }
 
         return $this;
+    }
+
+    protected function sync()
+    {
+        $this->synced = true;
+        $this->isDirty = false;
     }
 
     public function setAttribute($attribute, $value)
     {
         $this->attributes[$attribute] = $value;
-        $this->setDirty();
 
-        return $this;
-    }
-
-    protected function setDirty()
-    {
         if ($this->synced) {
             $this->dirty = true;
         }
@@ -66,32 +90,48 @@ abstract class AbstractModel
     public function getAttribute($attribute)
     {
         // @TODO: Error handling.
+        //  - What happens when an attribute doesn't exist?
         return $this->attributes[$attribute];
     }
 
-    public function getEndpoint()
-    {
-        return $this->endpoint;
-    }
+    /**
+     * getResource
+     *
+     * Returns the base name of the object.
+     *
+     * @return string
+     */
+    abstract public function getResource();
+
+    /**
+     * getEndpoint
+     *
+     * Returns the API endpoint for the model excluding the object's
+     * identifier.  Associations implementing this method often need the id of
+     * the owning object in the URI.
+     *
+     * @return string
+     */
+    abstract public function getEndpoint();
 
     /**
      * getBaseUrl
      *
-     * Returns the base URL for the model.
+     * Returns the endpoint for the model with it's identifier.
      *
      * @return string
      */
-    public abstract function getBaseUrl();
+    abstract public function getReference();
 
     /**
      * getBaseUrlWithCommand
      *
-     * Returns the base URL for the model with a command.
+     * Returns the endpoing for the model with a command.
      *
      * @param string $command
      * @return string
      */
-    public abstract function getBaseUrlWithCommand(string $command);
+    abstract public function getReferenceWithCommand(string $command);
 
     /**
      * createPersistor
@@ -141,14 +181,48 @@ abstract class AbstractModel
         return $model->createPersistor()->findMany($model);
     }
 
-    public function newInstance()
+    /**
+     * newInstance
+     *
+     * Create a new instance of the model, optionally hydrating it.
+     * @FIXME: Does this need to be abstract?
+     *
+     * @param array $attributes
+     * @return static
+     */
+    public function newInstance(array $attributes = [])
     {
-        return new static;
+        $model = new static;
+        $model->hydrate($attributes);
+
+        return $model;
     }
+
+    /**
+     * hydrate
+     *
+     * The method responsible for hydrating the model data.
+     *
+     * @param array
+     * @return static
+     */
+    abstract protected function hydrate(array $attributes);
 
     public function toArray()
     {
         return $this->attributes;
+    }
+
+    /**
+     * __call
+     *
+     * Execute any public static method on a new instance.
+     */
+    public static function __call($method, $arguments)
+    {
+        $model = new static;
+
+        return $model->$method($arguments);
     }
 
     public function __set($attribute, $value)

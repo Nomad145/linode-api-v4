@@ -60,11 +60,12 @@ class Persistor
     {
         $request = $this->builder
             ->setMethod('GET')
-            ->setUri(sprintf('%s', $model->getEndpoint()))
+            ->setUri($model->getEndpoint())
             ->build();
 
         $response = json_decode($this->client->send($request)->getBody(), true);
 
+        /* return $this->hydrator->hydrateCollection($model, $response[$model->getResource()]); */
         return $this->hydrator->hydrateCollection($model, $response['linodes']);
     }
 
@@ -72,7 +73,7 @@ class Persistor
     {
         $request = $this->builder
             ->setMethod('PUT')
-            ->setUri($model->getEndpoint())
+            ->setUri($model->getReference())
             ->setBody($model->toArray())
             ->build();
 
@@ -87,7 +88,7 @@ class Persistor
 
         $request = $this->builder
             ->setMethod('DELETE')
-            ->setUri(sprintf('%s/%s', $model->getEndpoint(), $model->id))
+            ->setUri($model->getReference())
             ->build();
 
         // @TODO: Error handling.

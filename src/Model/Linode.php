@@ -3,6 +3,7 @@
 namespace LinodeApi\Model;
 
 use GuzzleHttp\Psr7\Request;
+use LinodeApi\Exception\ModelOutOfSyncException;
 use LinodeApi\Model\AbstractModel;
 
 /**
@@ -11,22 +12,43 @@ use LinodeApi\Model\AbstractModel;
  */
 class Linode extends AbstractModel
 {
-    protected $endpoint = 'linode/instances';
+    protected $resource = 'instances';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getBaseUrl()
+    public function getResource()
     {
-        return sprintf('%s/%s', $this->endpoint, $this->id);
+        return $this->resource;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBaseUrlWithCommand(string $command)
+    public function getEndpoint()
     {
-        return sprintf('%s/%s', $this->getBaseUrl(), $command);
+        return sprintf('linode/%s', $this->getResource());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReference()
+    {
+        if (!$this->synced) {
+            throw new ModelOutOfSyncException('Object is out of sync.');
+        }
+
+        return sprintf('%s/%s', $this->getEndpoint(), $this->id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReferenceWithCommand(string $command)
+    {
+        if (!$this->synced) {
+            throw new ModelOutOfSyncException('Object is out of sync.');
+        }
+
+        return sprintf('%s/%s', $this->getReference(), $command);
     }
 
     /**
@@ -36,7 +58,7 @@ class Linode extends AbstractModel
      */
     public function boot()
     {
-        self::$client->post(sprintf('%s/%s/boot', $this->endpoint, $this->id));
+        self::$client->post($this->getReferenceWithCommand('boot'));
 
         return $this;
     }

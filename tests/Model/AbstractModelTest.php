@@ -19,12 +19,12 @@ class AbstractModelTest extends \PHPUnit\Framework\TestCase
 
         $this->subject
             ->expects($this->any())
-            ->method('getBaseUrl')
+            ->method('getReference')
             ->willReturn('base/url');
 
         $this->subject
             ->expects($this->any())
-            ->method('getBaseUrlWithCommand')
+            ->method('getReferenceWithCommand')
             ->willReturn('base/url/1');
     }
 
