@@ -58,15 +58,29 @@ class Persistor
      */
     public function findMany(AbstractModel $model)
     {
-        $request = $this->builder
-            ->setMethod('GET')
-            ->setUri($model->getEndpoint())
-            ->build();
-
+        $request = $this->build('GET', $model->getEndpoint());
         $response = json_decode($this->client->send($request)->getBody(), true);
+        $collection = $this->hydrator->hydrateCollection($model, $response['linodes']);
 
+        // @FIXME: Basic demonstration of pagination.
         /* return $this->hydrator->hydrateCollection($model, $response[$model->getResource()]); */
-        return $this->hydrator->hydrateCollection($model, $response['linodes']);
+        for ($i = $response['page']; $i < $response['page_total']; $i++) {
+            $request = $this->build('GET', $model->getEndpoint());
+            $response = json_decode($this->client->send($request)->getBody(), true);
+            $collection = $collection->merge(
+                $this->hydrator->hydrateCollection($model, $response['linodes'])
+            );
+        }
+
+        return $collection;
+    }
+
+    private function build($method, $uri)
+    {
+        return $this->builder
+            ->setMethod($method)
+            ->setUri($uri)
+            ->build();
     }
 
     public function update(AbstractModel $model)

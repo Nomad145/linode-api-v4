@@ -2,7 +2,7 @@
 
 namespace LinodeApi;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use LinodeApi\Collection\ModelCollection;
 use LinodeApi\Model\AbstractModel;
 
 /**
@@ -13,7 +13,7 @@ class Hydrator
 {
     public function hydrateCollection(AbstractModel $model, array $collection)
     {
-        return new ArrayCollection(
+        return new ModelCollection(
             array_map(function (array $linode) use ($model) {
                 return $model::newInstance($linode);
             }, $collection)

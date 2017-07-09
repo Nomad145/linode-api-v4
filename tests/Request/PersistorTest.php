@@ -83,21 +83,26 @@ class PersistorTest extends \PHPUnit\Framework\TestCase
 
     public function testFindMany()
     {
-        $request = $this->createMock(Request::class);
+        $apiResponse = $this->createMock(Request::class);
 
-        $request->expects($this->any())
+        $apiResponse->expects($this->any())
             ->method('getBody')
-            ->willReturn(' {"linodes": [{ "id": 1 }]}');
+            ->will($this->onConsecutiveCalls(
+                '{"page": 1, "page_total": 3, "linodes": [{ "id": 1 }]}',
+                '{"page": 2, "page_total": 3, "linodes": [{ "id": 2 }]}',
+                '{"page": 3, "page_total": 3, "linodes": [{ "id": 3 }]}'
+            ));
 
-        $this->client->expects($this->once())
+        $this->client->expects($this->any())
             ->method('send')
-            ->willReturn($request);
+            ->willReturn($apiResponse);
 
         $linodes = $this->subject->findMany(new Linode());
 
         $this->assertInternalType('object', $linodes);
         $this->assertInstanceOf(ArrayCollection::class, $linodes);
         $this->assertNotEmpty($linodes);
+        $this->assertCount(3, $linodes);
         $this->assertInstanceOf(Linode::class, $linode = $linodes->first());
         $this->assertSame(1, $linode->id);
     }
