@@ -88,9 +88,9 @@ class PersistorTest extends \PHPUnit\Framework\TestCase
         $apiResponse->expects($this->any())
             ->method('getBody')
             ->will($this->onConsecutiveCalls(
-                '{"page": 1, "page_total": 3, "linodes": [{ "id": 1 }]}',
-                '{"page": 2, "page_total": 3, "linodes": [{ "id": 2 }]}',
-                '{"page": 3, "page_total": 3, "linodes": [{ "id": 3 }]}'
+                '{"page": 1, "total_pages": 3, "linodes": [{ "id": 1 }]}',
+                '{"page": 2, "total_pages": 3, "linodes": [{ "id": 2 }]}',
+                '{"page": 3, "total_pages": 3, "linodes": [{ "id": 3 }]}'
             ));
 
         $this->client->expects($this->any())
