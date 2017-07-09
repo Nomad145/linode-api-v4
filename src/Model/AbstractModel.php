@@ -86,7 +86,7 @@ abstract class AbstractModel
     {
         // @TODO: Error handling.
         //  - What happens when an attribute doesn't exist?
-        return $this->attributes[$attribute];
+        return $this->attributes[$attribute] ?? null;
     }
 
     /**
@@ -203,7 +203,7 @@ abstract class AbstractModel
      * @param array $attributes
      * @return static
      */
-    public function newInstance(array $attributes = [])
+    public static function newInstance(array $attributes = [])
     {
         $model = new static;
         $model->hydrate($attributes);
