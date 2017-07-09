@@ -238,4 +238,9 @@ abstract class AbstractModel
     {
         return $this->getAttribute($attribute);
     }
+
+    public function __isset($key)
+    {
+        return isset($this->attributes[$key]);
+    }
 }
