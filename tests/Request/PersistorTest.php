@@ -49,7 +49,7 @@ class PersistorTest extends \PHPUnit\Framework\TestCase
     public function testDelete()
     {
         $model = new Linode();
-        $model->setAttributes(['id' => 1]);
+        $model->hydrate(['id' => 1]);
 
         $this->assertNull($this->subject->delete($model));
     }

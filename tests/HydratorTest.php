@@ -16,12 +16,12 @@ class HydratorTest extends \PHPUnit\Framework\TestCase
     {
         $subject = new Hydrator();
         $model = new Linode();
-        $collection = $subject->hydrateCollection($model, [['a' => 1]]);
+        $collection = $subject->hydrateCollection($model, [['id' => 1]]);
 
         $this->assertInternalType('object', $collection);
         $this->assertInstanceOf(ArrayCollection::class, $collection);
         $this->assertInternalType('object', $linode = $collection->first());
         $this->assertInstanceOf(Linode::class, $linode);
-        $this->assertSame(1, $linode->getAttribute('a'));
+        $this->assertSame(1, $linode->id = 1);
     }
 }

@@ -14,6 +14,8 @@ use LinodeApi\Hydrator;
  */
 abstract class AbstractModel
 {
+    protected const ASSOCIATION_MAP = [];
+
     /**
      * @var ClientInterface
      *
@@ -38,6 +40,26 @@ abstract class AbstractModel
     protected $attributes = [];
 
     /**
+     * getEndpoint
+     *
+     * Returns the API endpoint for the model excluding the object's
+     * identifier.  Associations implementing this method often need the id of
+     * the owning object in the URI.
+     *
+     * @return string
+     */
+    abstract public function getEndpoint();
+
+    /**
+     * getResource
+     *
+     * Returns the resource for the model with it's identifier.
+     *
+     * @return string
+     */
+    abstract public function getResource();
+
+    /**
      * setClient
      *
      * Set the HTTP Guzzle Client.
@@ -47,33 +69,6 @@ abstract class AbstractModel
     public static function setClient(ClientInterface $client)
     {
         static::$client = $client;
-    }
-
-    /**
-     * setAttributes
-     *
-     * How do we enforce that the API is the only thing that hydrates the
-     * model?  In what scenarios would a developer need this method?
-     *  - Hydrating the model from a cached response.
-     *
-     * @param array $attributes
-     * @param bool $sync Flag for setting the model to 'synced'.
-     */
-    public function setAttributes(array $attributes, bool $sync = true)
-    {
-        $this->attributes = $attributes;
-
-        if ($sync) {
-            $this->sync();
-        }
-
-        return $this;
-    }
-
-    protected function sync()
-    {
-        $this->synced = true;
-        $this->isDirty = false;
     }
 
     public function setAttribute($attribute, $value)
@@ -95,90 +90,108 @@ abstract class AbstractModel
     }
 
     /**
-     * getResource
+     * setAttributes
      *
-     * Returns the base name of the object.
+     * How do we enforce that the API is the only thing that hydrates the
+     * model?  In what scenarios would a developer need this method?
+     *  - Hydrating the model from a cached response.
      *
-     * @return string
+     * @param array $attributes
+     * @param bool $sync Flag for setting the model to 'synced'.
      */
-    abstract public function getResource();
+    protected function setAttributes(array $attributes)
+    {
+        $this->attributes = $attributes;
+
+        return $this;
+    }
 
     /**
-     * getEndpoint
-     *
-     * Returns the API endpoint for the model excluding the object's
-     * identifier.  Associations implementing this method often need the id of
-     * the owning object in the URI.
-     *
-     * @return string
-     */
-    abstract public function getEndpoint();
-
-    /**
-     * getBaseUrl
-     *
-     * Returns the endpoint for the model with it's identifier.
-     *
-     * @return string
-     */
-    abstract public function getReference();
-
-    /**
-     * getBaseUrlWithCommand
-     *
-     * Returns the endpoing for the model with a command.
-     *
-     * @param string $command
-     * @return string
-     */
-    abstract public function getReferenceWithCommand(string $command);
-
-    /**
-     * createPersistor
+     * getPersistor
      *
      * @return Persistor
      */
-    protected function createPersistor()
+    protected function getPersistor()
     {
         if (!static::$client) {
             throw new ModelNotInitializedException('The HTTP client was not initialized.');
         }
 
-        /*
-         * @TODO: Executing the request should be delegated to another class.
-         *
-         * $builder
-         *     ->setUri()
-         *     ->setBody()
-         *     ->execute();
-         */
         return new Persistor(static::$client, new RequestBuilder(), new Hydrator());
     }
 
     public function save()
     {
-        $persistor = $this->createPersistor();
+        $persistor = $this->getPersistor();
 
         return $this->isDirty ? $persistor->update($this) : $persistor->create($this);
     }
 
     public function delete()
     {
-        $this->createPersistor()->delete($this);
+        $this->getPersistor()->delete($this);
     }
 
     public static function find($id)
     {
         $model = (new static);
 
-        return $model->createPersistor()->findOne($model, $id);
+        return $model->getPersistor()->findOne($model, $id);
     }
 
     public static function all()
     {
         $model = new static;
 
-        return $model->createPersistor()->findMany($model);
+        return $model->getPersistor()->findMany($model);
+    }
+
+    public function hydrate(array $attributes)
+    {
+        // Set the class property within the local scope for array_* functions.
+        $fillable = $this->fillable;
+
+        // Set the filtered attributes on the class.
+        $this->setAttributes(
+            array_filter(
+                $attributes,
+                function ($value, $key) use ($fillable) {
+                    /* @var $this ->fillable */
+                    return in_array($key, $fillable);
+                },
+                ARRAY_FILTER_USE_BOTH
+            )
+        );
+
+        $this->hydrateAssociations();
+    }
+
+    /**
+     * hydrate
+     *
+     * The method responsible for hydrating the model data.
+     *
+     * @param array
+     * @return static
+     */
+    protected function hydrateAssociations()
+    {
+        $associations = array_filter(
+            $this->attributes,
+            function ($value, $key) {
+                return $value != null && in_array($key, array_values(array_keys(static::ASSOCIATION_MAP)));
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        array_walk(
+            $associations,
+            function (&$value, $key) {
+                $value = static::ASSOCIATION_MAP[$key]::newInstance($value);
+            }
+        );
+
+        $this->setAttributes(array_merge($this->attributes, $associations));
     }
 
     /**
@@ -199,30 +212,19 @@ abstract class AbstractModel
     }
 
     /**
-     * hydrate
-     *
-     * The method responsible for hydrating the model data.
-     *
-     * @param array
-     * @return static
+     * @TODO: Replace with serialization groups.
      */
-    abstract protected function hydrate(array $attributes);
-
     public function toArray()
     {
         return $this->attributes;
     }
 
     /**
-     * __call
-     *
-     * Execute any public static method on a new instance.
+     * __callStatic
      */
-    public static function __call($method, $arguments)
+    public static function __callStatic($method, $arguments)
     {
-        $model = new static;
-
-        return $model->$method($arguments);
+        return (new static)->$method(...$arguments);
     }
 
     public function __set($attribute, $value)

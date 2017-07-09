@@ -13,6 +13,10 @@ class Config extends AbstractModel
     /** @var string */
     protected $endpoint = 'linode/instances/%s/configs';
 
+    protected $fillable = [
+        'id'
+    ];
+
     /** @var Linode */
     public $linode;
 
@@ -31,25 +35,11 @@ class Config extends AbstractModel
 
     public function getResource()
     {
-        return 'config';
-    }
-
-    public function getReference()
-    {
-        if (!$this->synced) {
+        if (!$this->id) {
             throw new ModelOutOfSyncException('Object is out of sync.');
         }
 
-        return sprintf('%s/configs/%s', $this->linode->getReference(), $this->id);
-    }
-
-    public function getReferenceWithCommand(string $command)
-    {
-        if (!$this->synced) {
-            throw new ModelOutOfSyncException('Object is out of sync.');
-        }
-
-        return sprintf('%s/%s', $this->getReference(), $command);
+        return sprintf('%s/configs/%s', $this->linode->getResource(), $this->id);
     }
 
     /**

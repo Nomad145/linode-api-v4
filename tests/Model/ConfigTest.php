@@ -12,33 +12,30 @@ use LinodeApi\Model\Linode;
  */
 class ConfigTest extends \PHPUnit\Framework\TestCase
 {
-    public function testGetReference()
+    public function setUp()
     {
-        $config = new Config();
-        $config->setAttributes(['id' => 1]);
+        $this->linode = Linode::newInstance(['id' => 1]);
+    }
+
+    public function testGetResource()
+    {
+        $config = new Config($this->linode);
+        $config->hydrate(['id' => 1]);
 
         $linode = new Linode();
-        $linode->setAttributes(['id' => 1]);
+        $linode->hydrate(['id' => 1]);
 
         $config->linode = $linode;
 
-        $this->assertSame('linode/instances/1/configs/1', $config->getReference());
-        $this->assertSame('linode/instances/1/configs/1/command', $config->getReferenceWithCommand('command'));
+        $this->assertSame('linode/instances/1/configs/1', $config->getResource());
+        /* $this->assertSame('linode/instances/1/configs/1/command', $config->getReferenceWithCommand('command')); */
     }
 
-    public function testGetReferenceOutOfSync()
+    public function testGetResourceOutOfSync()
     {
         $this->expectException(ModelOutOfSyncException::class);
 
-        $config = new Config();
-        $config->getReference();
-    }
-
-    public function testGetReferenceWithCommandOutOfSync()
-    {
-        $this->expectException(ModelOutOfSyncException::class);
-
-        $config = new Config();
-        $config->getReferenceWithCommand('command');
+        $config = new Config($this->linode);
+        $config->getResource();
     }
 }

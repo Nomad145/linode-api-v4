@@ -15,7 +15,7 @@ class Hydrator
     {
         return new ArrayCollection(
             array_map(function (array $linode) use ($model) {
-                return $model->newInstance($linode);
+                return $model::newInstance($linode);
             }, $collection)
         );
     }

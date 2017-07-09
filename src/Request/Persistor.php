@@ -35,7 +35,7 @@ class Persistor
 
         $response = json_decode($this->client->send($request)->getBody(), true);
 
-        return $model->setAttributes($response);
+        return $model::newInstance($response);
     }
 
     public function findOne(AbstractModel $model, int $id)
@@ -47,7 +47,7 @@ class Persistor
 
         $response = json_decode($this->client->send($request)->getBody(), true);
 
-        return $model->setAttributes($response);
+        return $model::newInstance($response);
     }
 
     /**
@@ -73,7 +73,7 @@ class Persistor
     {
         $request = $this->builder
             ->setMethod('PUT')
-            ->setUri($model->getReference())
+            ->setUri($model->getResource())
             ->setBody($model->toArray())
             ->build();
 
@@ -88,7 +88,7 @@ class Persistor
 
         $request = $this->builder
             ->setMethod('DELETE')
-            ->setUri($model->getReference())
+            ->setUri($model->getResource())
             ->build();
 
         // @TODO: Error handling.

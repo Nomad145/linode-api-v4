@@ -5,6 +5,8 @@ namespace LinodeApi\Model;
 use GuzzleHttp\Psr7\Request;
 use LinodeApi\Exception\ModelOutOfSyncException;
 use LinodeApi\Model\AbstractModel;
+use LinodeApi\Model\Region;
+use LinodeApi\Model\Type;
 
 /**
  * Class Linode
@@ -12,43 +14,46 @@ use LinodeApi\Model\AbstractModel;
  */
 class Linode extends AbstractModel
 {
-    protected $resource = 'instances';
+    protected const ASSOCIATION_MAP = [
+        'type' => Type::class,
+        'distribution' => Distribution::class
+    ];
 
-    public function getResource()
-    {
-        return $this->resource;
-    }
+    protected $endpoint = 'linode/instances';
+
+    protected $fillable = [
+        'id',
+        'region',
+        'type',
+        'label',
+        'group',
+        'distribution',
+        'rootPass',
+        'rootSshKey',
+        'stackScript',
+        'stackScriptData',
+        'backup',
+        'withBackup'
+    ];
 
     /**
      * {@inheritdoc}
      */
     public function getEndpoint()
     {
-        return sprintf('linode/%s', $this->getResource());
+        return $this->endpoint;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getReference()
+    public function getResource()
     {
-        if (!$this->synced) {
-            throw new ModelOutOfSyncException('Object is out of sync.');
+        if (!$this->id) {
+            throw new ModelOutOfSyncException('Object is out of sync, therefore does not have a resource.');
         }
 
         return sprintf('%s/%s', $this->getEndpoint(), $this->id);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getReferenceWithCommand(string $command)
-    {
-        if (!$this->synced) {
-            throw new ModelOutOfSyncException('Object is out of sync.');
-        }
-
-        return sprintf('%s/%s', $this->getReference(), $command);
     }
 
     /**
@@ -58,28 +63,7 @@ class Linode extends AbstractModel
      */
     public function boot()
     {
-        self::$client->post($this->getReferenceWithCommand('boot'));
-
-        return $this;
-    }
-
-    public function getConfigs()
-    {
-        /* $this->configs = (new ModelFactory()) */
-        /*     ->create( */
-        /*         Configs::class, */
-        /*         json_encode(self::$client->get(sprintf('%s/%s/configs', $this->endpoint, $this->id))) */
-        /*     ); */
-
-        $persistor = $this->createPersistor();
-
-        $this->configs = $persistor->findMany(new Config());
-    }
-
-    public function addConfig(Config $config)
-    {
-        $request = new Request('POST', sprintf('%s/%s/config'), $config->toArray());
-        self::$client->send($request);
+        self::$client->post(sprintf('%s/%s', $this->getResource(), 'boot'));
 
         return $this;
     }

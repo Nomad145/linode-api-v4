@@ -8,34 +8,25 @@ namespace LinodeApi\Model;
  */
 class Distribution extends AbstractModel
 {
-    protected $resource = 'distributions';
+    protected $endpoint = 'linode/distributions';
+
+    protected $fillable = [
+        'id',
+        'created',
+        'label',
+        'minimumStorageSize',
+        'deprecated',
+        'vendor',
+        'x64'
+    ];
+
+    public function getEndpoint()
+    {
+        return $this->endpoint;
+    }
 
     public function getResource()
     {
-        return $this->resource;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getEndpoint()
-    {
-        return sprintf('linode/%s', $this->getResource());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getReference()
-    {
-        return sprintf('%s/%s', $this->endpoint, $this->id);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getReferenceWithCommand(string $command)
-    {
-        return sprintf('%s/%s', $this->getReference(), $command);
+        sprintf('%s/%s', $this->getEndpoint(), $this->getId());
     }
 }

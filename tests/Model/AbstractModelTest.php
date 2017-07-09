@@ -19,13 +19,8 @@ class AbstractModelTest extends \PHPUnit\Framework\TestCase
 
         $this->subject
             ->expects($this->any())
-            ->method('getReference')
+            ->method('getResource')
             ->willReturn('base/url');
-
-        $this->subject
-            ->expects($this->any())
-            ->method('getReferenceWithCommand')
-            ->willReturn('base/url/1');
     }
 
     public function testSetClient()
@@ -45,7 +40,7 @@ class AbstractModelTest extends \PHPUnit\Framework\TestCase
         $client = $this->createMock(ClientInterface::class);
         $this->subject->setClient($client);
 
-        $function = new \ReflectionMethod($this->subject, 'createPersistor');
+        $function = new \ReflectionMethod($this->subject, 'getPersistor');
         $function->setAccessible(true);
         $persistor = $function->invoke($this->subject);
 
@@ -61,7 +56,7 @@ class AbstractModelTest extends \PHPUnit\Framework\TestCase
         $property->setAccessible(true);
         $property->setValue(null);
 
-        $function = new \ReflectionMethod($this->subject, 'createPersistor');
+        $function = new \ReflectionMethod($this->subject, 'getPersistor');
         $function->setAccessible(true);
 
         $this->expectException(ModelNotInitializedException::class);
