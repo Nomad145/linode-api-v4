@@ -64,8 +64,8 @@ class Persistor
 
         // @FIXME: Basic demonstration of pagination.
         /* return $this->hydrator->hydrateCollection($model, $response[$model->getResource()]); */
-        for ($i = $response['page']; $i < $response['total_pages']; $i++) {
-            $request = $this->build('GET', $model->getEndpoint());
+        for ($i = $response['page'] + 1; $i <= $response['total_pages']; $i++) {
+            $request = $this->build('GET', $model->getEndpoint() . "?page=$i");
             $response = json_decode($this->client->send($request)->getBody(), true);
             $collection = $collection->merge(
                 $this->hydrator->hydrateCollection($model, $response['linodes'])
