@@ -176,22 +176,14 @@ abstract class AbstractModel
      */
     protected function hydrateAssociations()
     {
-        $associations = array_filter(
-            $this->attributes,
-            function ($value, $key) {
-                return $value != null && in_array($key, array_values(array_keys(static::ASSOCIATION_MAP)));
-            },
-            ARRAY_FILTER_USE_BOTH
-        );
-
         array_walk(
-            $associations,
+            $this->attributes,
             function (&$value, $key) {
-                $value = static::ASSOCIATION_MAP[$key]::newInstance($value);
+                if ($value != null && array_key_exists($key, static::ASSOCIATION_MAP)) {
+                    $value = static::ASSOCIATION_MAP[$key]::newInstance($value);
+                }
             }
         );
-
-        $this->setAttributes(array_merge($this->attributes, $associations));
     }
 
     /**
