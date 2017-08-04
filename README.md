@@ -1,34 +1,50 @@
 [![Build Status](https://travis-ci.org/Nomad145/linode-api-v4.svg?branch=master)](https://travis-ci.org/Nomad145/linode-api-v4)
 [![codecov](https://codecov.io/gh/Nomad145/linode-api-v4/branch/master/graph/badge.svg)](https://codecov.io/gh/Nomad145/linode-api-v4)
 
+# Linode API
+
+Create an instance of the Guzzle Client.  This configures the Authentication
+Middleware so you could optionally work with only the GuzzleClient if you
+preferred.
+
 ```
-<?php
-
-use LinodeApi\Auth\AccessToken;
-use GuzzleHttp\Psr7\Request;
-use LinodeApi\Middleware\AccessTokenMiddleware;
-use LinodeApi\Middleware\JsonContentTypeMiddleware;
-use LinodeApi\Factory\GuzzleFactory;
-
-require 'vendor/autoload.php';
-
-$accessToken = new AccessToken('access_token');
-
+$factory = new GuzzleFactory();
+$accessToken = new AccessToken('insert-access-token-here');
 $middleware[] = new JsonContentTypeMiddleware();
 $middleware[] = new AccessTokenMiddleware($accessToken);
+$client = $factory->getClient('https://api.alpha.linode.com/v4/', $middleware);
+```
 
-$factory = new GuzzleFactory('https://api.alpha.linode.com/v4/');
-$client = $factory->create($middleware);
+Initialize the model.
 
-$body = [
-    'region' => 'us-east-1a',
-    'type' => 'g5-standard-1'
-];
+```
+AbstractModel::setClient($client);
+```
 
-$request = new Request('POST', 'linode/instances', array(), json_encode($body));
-/* $request = new Request('GET', 'linode/instances'); */
+Creating a new Linode is as simple as calling Linode::save();
 
-$response = $client->send($request);
-echo $var = (string) $response->getBody();
+```
+$linode = new Linode();
+$linode->region = 'us-east-1a';
+$linode->type = 'g5-standard-1';
+$linode->distribution = 'linode/Fedora25';
+$linode->root_pass = 'asdf123;';
+$linode->save();
+```
 
+Issue commands to the Linode.
+```
+$linode->boot();
+$linode->createBackup("Tuesday's Backup");
+```
+
+Fetch a Linode.
+
+```
+$linode = Linode::find(1);
+```
+
+Associations are automatically hydrated.
+```
+$linode->type; // LinodeApi\Model\Type
 ```
